@@ -1,0 +1,32 @@
+DP-700 V9 GITHUB PUBLISH COMMANDS
+=================================
+
+Open CMD in the repository root after extracting the v9 ZIP.
+
+1. Review changes:
+
+git status
+git diff --stat
+
+2. Stage the v9 files:
+
+git add index.html manifest.webmanifest sw.js README.md assets/css/styles.css assets/js/app.js data/course.js data/course-content.js data/arabic-lessons.js data/professional-path.js UPDATE-V9.txt VALIDATION-V9.txt PUBLISH-V9-COMMANDS.txt publish-v9.cmd
+
+3. Commit:
+
+git commit -m "Add DP-700 professional mastery path, challenges and projects (v9)"
+
+4. Push:
+
+git push origin main
+
+5. Open after GitHub Pages deploys:
+
+https://fatoomnoour.github.io/dp700/?v=9#professional
+
+6. If v8 remains visible:
+
+Press Ctrl + F5.
+If required, open DevTools > Application > Service Workers > Unregister, then Clear site data and reload.
+
+The LF/CRLF warnings shown by Git on Windows are normal and do not indicate an error.

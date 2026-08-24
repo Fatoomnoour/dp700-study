@@ -1,0 +1,23 @@
+DP-700 VISUAL LEARNING — ARABIC SUPPORT UPDATE V6
+==================================================
+
+This update adds:
+- Optional Arabic explanation inside all 19 visual lessons.
+- Arabic summaries, memory hooks, key points, and exam traps.
+- Eight Arabic study-resource links.
+- English technical terminology and English Quick Checks remain unchanged.
+- Arabic explanation state is saved in the browser.
+
+The 118-question DUMP bank and the 93-question IMPORTANT simulator are preserved.
+
+CMD INSTALL
+Run these commands while CMD is open inside the local dp700 repository:
+
+powershell -NoProfile -Command "Expand-Archive -LiteralPath '%USERPROFILE%\Downloads\DP700_Arabic_Explanation_Update_v6.zip' -DestinationPath '%CD%' -Force"
+git status
+git add .
+git commit -m "Add Arabic explanations to DP-700 visual lessons"
+git push origin main
+
+After GitHub Pages finishes deploying, open the live site and press Ctrl+F5.
+Open Learn, choose a lesson, and select the Arabic Explanation button.

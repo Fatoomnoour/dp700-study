@@ -1,0 +1,13 @@
+{
+  "counts": {
+    "N1": 118,
+    "N2": 43,
+    "N3": 118
+  },
+  "total": 279,
+  "sourceFiles": [
+    "source-pdfs/DP-700N1.pdf",
+    "source-pdfs/DP-700N2.pdf",
+    "source-pdfs/DP-700N3.pdf"
+  ]
+}

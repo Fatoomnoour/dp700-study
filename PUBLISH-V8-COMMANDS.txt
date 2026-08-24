@@ -1,0 +1,29 @@
+DP-700 v8 — Publish to the existing GitHub repository
+======================================================
+
+1) Download and extract the ZIP over the ROOT of your existing dp700 repository.
+2) Allow replacement of the existing files.
+3) Open CMD in the repository root.
+4) Run:
+
+    publish-v8.cmd
+
+Manual CMD commands:
+
+    git status
+    git add index.html assets/css/styles.css assets/js/app.js data/course.js data/course-content.js sw.js manifest.webmanifest README.md UPDATE-V8.txt publish-v8.cmd PUBLISH-V8-COMMANDS.txt
+    git commit -m "Upgrade all 213 DP-700 course activities to full lessons (v8)"
+    git push origin main
+
+If the repository is not already cloned:
+
+    git clone https://github.com/Fatoomnoour/dp700.git
+    cd dp700
+
+Then extract the ZIP into that folder and run publish-v8.cmd.
+
+After the push:
+
+    https://fatoomnoour.github.io/dp700/
+
+Use Ctrl+F5 if GitHub Pages still displays the cached v7 interface.

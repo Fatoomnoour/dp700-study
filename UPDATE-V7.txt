@@ -1,0 +1,26 @@
+DP-700 Professional Course Update v7
+====================================
+
+This cumulative update includes the previous optional Arabic explanations and adds:
+
+- A new Course tab with 15 professional training modules.
+- 213 ordered activities based on the supplied 23.3-hour course outline.
+- Learning outcomes and a visual concept map for every module.
+- A guided hands-on lab with saved completion state for every module.
+- Exam-pattern hints that teach scenario recognition without revealing answer letters.
+- A Practice similar questions button mapped to the existing original 100-question bank.
+- Saved lecture, lab, course, and module progress in the browser.
+- Search and domain filters across the curriculum.
+
+The validated 118-question DUMP bank and the separate 93-question IMPORTANT simulator
+are not replaced or merged. Their purpose and question content stay separate.
+
+Apply from Windows CMD while you are inside the repository folder:
+
+powershell -NoProfile -Command "Expand-Archive -LiteralPath '%USERPROFILE%\Downloads\DP700_Professional_Course_Update_v7.zip' -DestinationPath '%CD%' -Force"
+git status
+git add .
+git commit -m "Add professional DP-700 course"
+git push origin main
+
+After GitHub Pages finishes publishing, open the website, press Ctrl+F5, and select Course.

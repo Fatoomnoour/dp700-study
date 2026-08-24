@@ -1,0 +1,14 @@
+DP-700 Professional Course v8 validation
+========================================
+Modules: 15 (expected 15)
+Activities: 213 (expected 213)
+Generated dedicated lessons: 213 (expected 213)
+Unique lesson IDs: 213
+Lessons with code examples: 200
+Lessons with official source links: 213
+Required-field errors: 0
+JavaScript syntax: PASS (course.js, course-content.js, app.js)
+Protected Practice/DUMP/IMPORTANT files included in patch: NO
+Existing progress key and courseLectureProgress structure changed: NO
+PWA cache version: v8
+Browser rendering note: automated Chromium navigation was blocked by the execution environment administrator; static route, syntax, data-generation, and required-field validations passed.

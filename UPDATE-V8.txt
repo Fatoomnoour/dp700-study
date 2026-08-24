@@ -1,0 +1,34 @@
+DP-700 Professional Course Update v8
+====================================
+
+This cumulative patch upgrades the existing v7 course outline into a full lesson experience while preserving the protected Practice, DUMP, IMPORTANT, question IDs, answers, scoring, and existing progress structure.
+
+What changed
+------------
+- Added data/course-content.js.
+- Generates 213 dedicated activity lessons without changing module IDs, activity order, lecture titles, durations, question mappings, visual mappings, or module labs.
+- Each activity now opens at:
+  #course/module/{moduleId}/lesson/{activityIndex}
+- Added detailed Arabic explanations with English technical terminology.
+- Added concise English revision summaries.
+- Added key-concept cards and visual process flows.
+- Added decision tables.
+- Added validated T-SQL, PySpark, Spark SQL, KQL, M, pipeline-expression, and Git examples where relevant.
+- Added guided Fabric practice, expected results, common mistakes, troubleshooting, exam focus, memory hooks, and Microsoft Learn sources.
+- Added previous/next lesson navigation and a module lesson sidebar.
+- Kept intentional completion using the existing courseLectureProgress data.
+- Added a separate completion control to the module activity list.
+- Updated the PWA cache to v8.
+
+Protected and unchanged
+-----------------------
+- data/questions.js
+- data/dump.js
+- data/dump-interactions.js
+- assets/dump/*
+- important/DP700_Practice_Exam.html
+- Existing question IDs, answers, scoring, interaction types, and storage behavior
+
+Installation
+------------
+Extract this patch over the root of the existing dp700 repository and allow file replacement. Then run a local HTTP server and regression-test before pushing.

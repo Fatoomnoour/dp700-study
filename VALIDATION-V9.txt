@@ -1,0 +1,79 @@
+DP-700 PROFESSIONAL MASTERY V9 — VALIDATION REPORT
+==================================================
+Validation date: 2026-07-21
+
+STATIC DATA VALIDATION
+----------------------
+PASS  Course modules: 15
+PASS  Existing ordered activities: 213
+PASS  Generated full lesson IDs: 213 unique
+PASS  Diagnostic questions: 18
+PASS  Diagnostic skill groups: 7
+PASS  Prerequisite bootcamp blocks: 7
+PASS  Mastery levels: 5
+PASS  Independent module Challenge Labs: 15
+PASS  Every module has exactly one Challenge Lab
+PASS  Troubleshooting Labs: 8
+PASS  Decision Simulator scenarios: 12
+PASS  End-to-End projects: 3
+PASS  Module assessment sets: 15
+PASS  Original v9 assessment questions: 75
+PASS  Every assessment question has four options, one valid answer, and an explanation
+PASS  Every diagnostic, decision, and troubleshooting answer index is valid
+
+CODE AND PWA VALIDATION
+-----------------------
+PASS  assets/js/app.js JavaScript syntax (node --check)
+PASS  data/course-content.js evaluation
+PASS  data/professional-path.js evaluation
+PASS  professional-path.js loads before app.js
+PASS  Service Worker cache name upgraded to v9
+PASS  professional-path.js included in PWA app shell
+PASS  All index.html cache-busting query strings upgraded to v9
+PASS  Existing course.js module IDs and lecture ordering preserved
+
+RUNTIME SMOKE TEST
+------------------
+Headless Chromium route rendering: 12/12 PASS with zero page errors.
+
+PASS  #professional
+PASS  #bootcamp
+PASS  #mastery
+PASS  #challenges
+PASS  #challenge/foundations
+PASS  #troubleshooting
+PASS  #troubleshooting/schema-mismatch
+PASS  #decision-lab
+PASS  #projects
+PASS  #project/batch-platform
+PASS  #module-assessment/foundations
+PASS  #course/module/foundations/lesson/0
+
+INTERACTION TESTS
+-----------------
+PASS  Challenge deliverables enable completion only after all are checked
+PASS  Challenge completion persists in v9 state
+PASS  Module assessment selections enable submission
+PASS  Module assessment result is calculated and stored
+PASS  Troubleshooting root-cause selection and answer check
+PASS  Decision Simulator selection and answer check
+PASS  Lesson learning-depth tabs render
+PASS  Topic Mastery Gate renders inside a full course lesson
+
+PROTECTED CONTENT SAFETY
+------------------------
+PASS  data/questions.js is not included in this patch
+PASS  data/dump.js is not included in this patch
+PASS  data/dump-interactions.js is not included in this patch
+PASS  assets/dump/ is not included in this patch
+PASS  important/DP700_Practice_Exam.html is not included in this patch
+
+Because those protected files are absent from the patch, extracting v9 cannot replace their questions, answers, IDs, scoring, exhibits, or isolated progress behavior.
+
+PROGRESS COMPATIBILITY
+----------------------
+PASS  Existing dp700-prep-state-v2 storage remains unchanged
+PASS  New professional features use dp700-professional-path-v9
+PASS  Existing courseLectureProgress and courseCompletedLabs are reused
+PASS  v9 professional progress is included in JSON export/import
+PASS  Reset clears both legacy and v9 progress only after confirmation

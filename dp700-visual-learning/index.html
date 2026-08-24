@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="Visual, interactive Microsoft DP-700 learning center with simplified lessons, memory maps, quick checks, original practice questions, validated DUMP runs, and exam simulation.">
+  <title>DP-700 Visual Learning — Understand, Practice &amp; Simulate</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=5">
+</head>
+<body>
+  <a class="skip-link" href="#app">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <button class="brand" type="button" data-route="home" aria-label="Return to dashboard">
+        <span class="brand__mark" aria-hidden="true">7</span>
+        <span><strong>DP-700</strong><small>FABRIC PREP</small></span>
+      </button>
+
+      <button class="icon-button menu-toggle" type="button" id="menuToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Open navigation">
+        <span aria-hidden="true">☰</span>
+      </button>
+
+      <nav class="primary-nav" id="primaryNav" aria-label="Primary navigation">
+        <button type="button" data-route="home">Dashboard</button>
+        <button type="button" data-route="study">Learn</button>
+        <button type="button" data-route="practice">Practice</button>
+        <button type="button" data-route="exam">Simulator</button>
+        <button type="button" data-route="quick">Quick</button>
+        <button type="button" data-route="dump" class="nav-dump">DUMP <span>118</span></button>
+        <button type="button" data-route="important" class="nav-important">IMPORTANT <span>93</span></button>
+        <button type="button" data-route="analytics">Analytics</button>
+        <button type="button" data-route="review">Review</button>
+        <button type="button" data-route="flashcards">Flashcards</button>
+        <button type="button" data-route="cheatsheet">Cheat Sheet</button>
+        <button type="button" data-route="bookmarks">Saved</button>
+        <button type="button" data-route="sources">Sources</button>
+      </nav>
+
+      <div class="top-actions">
+        <button class="icon-button" type="button" id="themeToggle" aria-label="Toggle color theme" title="Color theme">◐</button>
+        <button class="icon-button" type="button" data-route="settings" aria-label="Settings and backup" title="Settings">⚙</button>
+      </div>
+    </div>
+    <div class="global-progress" aria-hidden="true"><span id="globalProgressBar"></span></div>
+  </header>
+
+  <main id="app" tabindex="-1" aria-live="polite"></main>
+
+  <footer class="site-footer">
+    <div>
+      <strong>DP-700 Visual Learning</strong>
+      <p>19 visual lessons, 100 original practice questions, a separate 118-question interactive validated DUMP bank, and an independent IMPORTANT practice simulator.</p>
+    </div>
+    <a href="https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-700" target="_blank" rel="noopener noreferrer">Official DP-700 study guide ↗</a>
+  </footer>
+
+  <div class="toast-stack" id="toastStack" role="status" aria-live="polite"></div>
+  <input type="file" id="importInput" accept="application/json,.json" hidden>
+
+  <noscript><div class="noscript">JavaScript is required for the simulator and progress tracking.</div></noscript>
+  <script src="./data/questions.js?v=5"></script>
+  <script src="./data/dump.js?v=5"></script>
+  <script src="./data/dump-interactions.js?v=5"></script>
+  <script src="./data/visual-lessons.js?v=5"></script>
+  <script src="./assets/js/app.js?v=5"></script>
+</body>
+</html>

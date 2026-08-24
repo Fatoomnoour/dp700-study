@@ -1,0 +1,23 @@
+DP-700 VISUAL LEARNING — UPDATE V5
+==================================
+
+This update adds:
+- 19 visual learning lessons.
+- Memory maps and memory hooks.
+- Exact video chapter links.
+- Code snapshots and 60-second checks.
+- 51 official Microsoft references.
+
+The existing 118-question DUMP bank and the independent 93-question IMPORTANT simulator are not replaced by this update.
+
+INSTALL
+1. Extract this ZIP directly into the root of your local dp700 repository.
+2. Allow Windows to replace files with the same names.
+3. Open PowerShell inside the repository and run:
+
+git add .
+git commit -m "Add DP-700 visual learning lessons"
+git push origin main
+
+After GitHub Pages finishes deploying, open the live site and press Ctrl+F5.
+The top navigation should show Learn instead of Study.

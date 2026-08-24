@@ -1,0 +1,28 @@
+DP-700 PROFESSIONAL MASTERY UPDATE V9
+=====================================
+
+This is a cumulative patch designed to be extracted over the existing DP-700 repository.
+
+NEW IN V9
+---------
+1. 18-question prerequisite diagnostic with Foundation, Standard, and Fast-Track recommendations.
+2. Skill-area diagnostic results for SQL, Python, Spark/Delta, KQL, Data Engineering, Fabric/Security, and Git/CI-CD.
+3. Seven prerequisite bootcamp blocks.
+4. Four learning-depth views inside every one of the 213 existing lessons.
+5. Topic Mastery Gate for every lesson.
+6. Module Mastery Dashboard with evidence-based progression.
+7. Fifteen independent module Challenge Labs.
+8. Eight Troubleshooting Labs based on broken real-world scenarios.
+9. Twelve-scenario Fabric Decision Simulator.
+10. Fifteen module assessments with 75 new original professional scenario questions.
+11. Three end-to-end portfolio projects.
+12. Separate v9 localStorage namespace and progress backup support.
+13. PWA cache upgraded to v9.
+
+PROTECTED CONTENT
+-----------------
+The original Practice, DUMP, DUMP interactions, exhibits, and IMPORTANT simulator are not included in this patch and are not modified.
+
+APPLY
+-----
+Extract this ZIP over the root of the current repository and run publish-v9.cmd.

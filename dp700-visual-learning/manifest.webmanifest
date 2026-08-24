@@ -1,0 +1,15 @@
+{
+  "name": "DP-700 Visual Learning & Exam Simulator",
+  "short_name": "DP-700 Prep",
+  "description": "Microsoft Fabric DP-700 visual learning app with 19 visual lessons, video chapters, original practice, a validated 118-question interactive DUMP bank, and a separate IMPORTANT simulator.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07111f",
+  "theme_color": "#2563eb",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {"src": "./assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}

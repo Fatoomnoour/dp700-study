@@ -1,0 +1,15 @@
+{
+  "name": "DP-700 Visual Learning & Exam Simulator",
+  "short_name": "DP-700 Prep",
+  "description": "Professional Microsoft Fabric DP-700 course with 15 structured modules, guided labs, exam-pattern hints, similar-question practice, optional Arabic explanations, 19 visual lessons, and separate DUMP and IMPORTANT simulators.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07111f",
+  "theme_color": "#2563eb",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {"src": "./assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}

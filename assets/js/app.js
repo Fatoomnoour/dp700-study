@@ -357,7 +357,7 @@
   }
 
   function getDumpInteraction(question) {
-    const base = DUMP_INTERACTION_DATA.questions?.[question.n] || UPLOADED_INTERACTIONS[String(question.n)] || { type: "single", selectN: 1, correctLabels: [] };
+    const base = UPLOADED_INTERACTIONS[String(question.n)] || DUMP_INTERACTION_DATA.questions?.[question.n] || { type: "single", selectN: 1, correctLabels: [] };
     const fallback = DUMP_PAGE_FALLBACKS[String(question.n)] || {};
     const assets = [...new Set([...(base.assets || []), ...(fallback.assets || [])])];
     return { ...base, assets };

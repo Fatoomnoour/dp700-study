@@ -1647,8 +1647,11 @@
 
   function renderBookmarks() {
     const bookmarked = state.bookmarks.map(id => getQuestion(id) || DUMP_QUESTIONS.find(q => q.n === Number(id))).filter(Boolean);
+    const dumpBookmarked = state.bookmarks.filter(id => DUMP_QUESTIONS.some(q => q.n === Number(id)));
+    const legacyBookmarked = state.bookmarks.filter(id => QUESTIONS.some(q => q.n === Number(id)));
+    const practiceSavedAction = dumpBookmarked.length ? `<button class="btn btn--primary" type="button" data-action="practice-dump-bookmarks">Practice saved DUMP questions (${dumpBookmarked.length})</button>` : legacyBookmarked.length ? `<button class="btn btn--primary" type="button" data-action="practice-bookmarks">Practice bookmarks</button>` : "";
     app.innerHTML = `
-      ${pageHead("SAVED", "Bookmarked Questions", "Bookmark questions during practice to build a personal review queue.", bookmarked.length ? `<button class="btn btn--primary" type="button" data-action="practice-bookmarks">Practice bookmarks</button>` : "")}
+      ${pageHead("SAVED", "Bookmarked Questions", "Bookmark questions during practice to build a personal review queue.", practiceSavedAction)}
       ${bookmarked.length ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>#</th><th>Title</th><th>Area</th><th>Status</th><th></th></tr></thead><tbody>${bookmarked.map(q => `<tr><td>${q.n}</td><td><strong>${escapeHtml(q.title)}</strong><br><small>${escapeHtml(q.question)}</small></td><td>${escapeHtml(q.area)}</td><td>${(state.answers[q.n] || state.dumpAnswers[q.n]) ? (state.answers[q.n] || state.dumpAnswers[q.n]).correct === true ? "✓ Correct" : (state.answers[q.n] || state.dumpAnswers[q.n]).correct === false ? "✕ Incorrect" : "Answered" : "Not attempted"}</td><td><button class="btn btn--secondary btn--small" type="button" data-action="bookmark" data-id="${q.n}">Remove</button></td></tr>`).join("")}</tbody></table></div>` : '<div class="empty-state"><span class="empty-state__icon">☆</span><h2>No bookmarked questions</h2><p>Select Bookmark during practice and the question will appear here.</p><button class="btn btn--primary" type="button" data-route="practice">Start practice</button></div>'}`;
   }
 
@@ -2033,7 +2036,8 @@
       const ids = QUESTIONS.filter(q => state.answers[q.n] && !state.answers[q.n].correct).map(q => q.n);
       startSession("review", ids.length, "all", ids);
     }
-    if (action === "practice-bookmarks") { const dumpIds = state.bookmarks.filter(id => DUMP_QUESTIONS.some(q => q.n === Number(id))); const legacyIds = state.bookmarks.filter(id => QUESTIONS.some(q => q.n === Number(id))); if (dumpIds.length) startDumpDrill(dumpIds, `Saved DUMP questions · ${dumpIds.length}`); else if (legacyIds.length) startSession("review", legacyIds.length, "all", legacyIds); }
+    if (action === "practice-dump-bookmarks") { const dumpIds = state.bookmarks.filter(id => DUMP_QUESTIONS.some(q => q.n === Number(id))); if (dumpIds.length) startDumpDrill(dumpIds, `Saved DUMP questions · ${dumpIds.length}`); }
+    if (action === "practice-bookmarks") { const legacyIds = state.bookmarks.filter(id => QUESTIONS.some(q => q.n === Number(id))); if (legacyIds.length) startSession("review", legacyIds.length, "all", legacyIds); }
     if (action === "start-dump-drill" || action === "dump-start-random") startDumpDrill(null, "Random 25");
     if (action === "dump-start-run") {
       const source = actionButton.dataset.source;

@@ -353,7 +353,7 @@
   }
 
   function defaultDumpAnswer(interaction) {
-    if (["single", "multi"].includes(interaction.type)) return { selected: [], checked: false, correct: null };
+    if (["single", "multi", "letter-choice"].includes(interaction.type)) return { selected: [], checked: false, correct: null };
     if (["dropdown", "dragdrop"].includes(interaction.type)) return { values: new Array(interaction.slots?.length || 0).fill(""), checked: false, correct: null };
     if (interaction.type === "yesno") return { values: new Array(interaction.statements?.length || 0).fill(""), checked: false, correct: null };
     if (interaction.type === "review") return { checked: false, correct: null };
@@ -384,7 +384,7 @@
 
   function dumpAnswerComplete(question, answer = peekDumpAnswer(question)) {
     const interaction = getDumpInteraction(question);
-    if (interaction.type === "single") return answer.selected?.length === 1;
+    if (["single", "letter-choice"].includes(interaction.type)) return answer.selected?.length === 1;
     if (interaction.type === "multi") return answer.selected?.length === Number(interaction.selectN || interaction.correctLabels?.length || 2);
     if (["dropdown", "dragdrop", "yesno"].includes(interaction.type)) return Boolean(answer.values?.length) && answer.values.every(Boolean);
     if (interaction.type === "review") return true;
@@ -394,7 +394,7 @@
   function dumpAnswerCorrect(question, answer = peekDumpAnswer(question)) {
     const interaction = getDumpInteraction(question);
     if (interaction.unscored) return null;
-    if (["single", "multi"].includes(interaction.type)) {
+    if (["single", "multi", "letter-choice"].includes(interaction.type)) {
       const actual = [...(answer.selected || [])].sort().join(",");
       const expected = [...(interaction.correctLabels || [])].sort().join(",");
       return Boolean(expected) && actual === expected;
@@ -405,7 +405,7 @@
   }
 
   function dumpTypeLabel(interaction) {
-    return ({ single: "Single choice", multi: `Multiple choice · Select ${interaction.selectN}`, dragdrop: "Drag & drop", dropdown: "Hotspot / dropdown", yesno: "Hotspot · Yes/No", review: "Source review · image-backed" })[interaction.type] || "Interactive";
+    return ({ single: "Single choice", multi: `Multiple choice · Select ${interaction.selectN}`, dragdrop: "Drag & drop", dropdown: "Hotspot / dropdown", yesno: "Hotspot · Yes/No", review: "Source review · image-backed", "letter-choice": "Choice from source screenshot" })[interaction.type] || "Interactive";
   }
 
   function dumpDisplayPrompt(question, interaction = getDumpInteraction(question)) {
@@ -413,7 +413,7 @@
       .replace(/^DRAG DROP \(Drag and Drop is not supported\)\s*/i, "")
       .replace(/^HOTSPOT \(Drag and Drop is not supported\)\s*/i, "")
       .replace(/^HOTSPOT\s*/i, "");
-    if (["single", "multi"].includes(interaction.type)) {
+    if (["single", "multi", "letter-choice"].includes(interaction.type)) {
       const lines = text.split("\n");
       const firstOption = lines.findIndex(line => /^\s*A\.\s+/.test(line));
       if (firstOption >= 0) text = lines.slice(0, firstOption).join("\n");
@@ -446,7 +446,7 @@
     const locked = answer.checked;
     let controls = "";
 
-    if (["single", "multi"].includes(interaction.type)) {
+    if (["single", "multi", "letter-choice"].includes(interaction.type)) {
       controls = `<div class="dump-choice-list" role="group" aria-label="Answer choices">${dumpOptions(question, interaction).map(option => {
         const selected = answer.selected?.includes(option.label);
         const expected = interaction.correctLabels?.includes(option.label);
@@ -2025,7 +2025,7 @@
     if (action === "dump-choice") {
       mutateDumpAnswer(id, (answer, interaction) => {
         const label = actionButton.dataset.label;
-        if (interaction.type === "single") answer.selected = [label];
+        if (["single", "letter-choice"].includes(interaction.type)) answer.selected = [label];
         else if (answer.selected.includes(label)) answer.selected = answer.selected.filter(item => item !== label);
         else if (answer.selected.length < Number(interaction.selectN || 2)) answer.selected.push(label);
         else toast(`Select exactly ${interaction.selectN} answers. Remove one first.`);

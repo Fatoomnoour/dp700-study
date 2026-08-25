@@ -19,7 +19,7 @@ The visible navigation now focuses on the Microsoft-style timed exam, the comple
 
 ## Current question and exhibit coverage
 
-The application exposes **279 interactive DUMP items** in the requested file order: DP-700N1 (118), DP-700N2 (43), then DP-700N3 (118). Every imported record has a question-specific screenshot from its source PDF page, and the library includes an explicit source-file filter. Supported controls include single choice, multiple choice, Yes/No, dropdown hotspot, and drag-and-drop with an accessible select fallback.
+The application exposes **279 interactive DUMP items** in the requested file order: DP-700N1 (118), DP-700N2 (43), then DP-700N3 (118). Every imported record has a question-specific screenshot from its source PDF page, and genuinely long or exhibit-heavy questions are split into Panel A and Panel B. Panels sit side by side on desktop and stack vertically on phones. The library includes an explicit source-file filter. Supported controls include single choice, multiple choice, Yes/No, dropdown hotspot, and drag-and-drop with an accessible select fallback.
 
 The cheat sheet now concentrates on repeated DP-700 traps: Direct Lake guardrails and fallback, V-Order, OPTIMIZE versus VACUUM, RLS versus masking, Git versus deployment pipelines, event time versus processing time, Spark concurrency, medallion layers, and tool selection.
 

@@ -410,7 +410,7 @@
 
   function renderDumpAssets(interaction) {
     if (!interaction.assets?.length) return "";
-    return `<section class="dump-exhibits" aria-label="Question exhibit"><div class="dump-exhibits__title">Question exhibit${interaction.assets.length > 1 ? "s" : ""}</div><div class="dump-exhibit-grid">${interaction.assets.map((src, index) => `<button class="dump-exhibit-button" type="button" data-action="open-dump-image" data-src="${escapeHtml(src)}" aria-label="Open question exhibit ${index + 1}"><img src="${escapeHtml(src)}" alt="Question exhibit ${index + 1}" loading="lazy"></button>`).join("")}</div></section>`;
+    return `<section class="dump-exhibits" aria-label="Question screenshot"><div class="dump-exhibits__title">Question screenshot${interaction.assets.length > 1 ? "s · split for readability" : ""}</div><div class="dump-exhibit-grid">${interaction.assets.map((src, index) => `<button class="dump-exhibit-button" type="button" data-action="open-dump-image" data-src="${escapeHtml(src)}" aria-label="Open question screenshot ${index + 1}"><span class="dump-exhibit-label">${interaction.assets.length > 1 ? `Panel ${String.fromCharCode(65 + index)}` : "Source page"}</span><img src="${escapeHtml(src)}" alt="Question screenshot ${index + 1}" loading="lazy"></button>`).join("")}</div></section>`;
   }
 
   function renderDumpFeedback(question, answer, interaction) {

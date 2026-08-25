@@ -578,9 +578,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .dump-exhibits { margin: 0 0 16px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
 .dump-exhibits__title { margin-bottom: 12px; color: var(--primary); font-weight: 800; }
-.dump-exhibit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
-.dump-exhibit-button { min-height: 120px; padding: 8px; border: 1px solid var(--border); border-radius: 10px; background: #fff; cursor: zoom-in; }
-.dump-exhibit-button img { display: block; width: 100%; height: auto; max-height: 360px; object-fit: contain; }
+.dump-exhibit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.dump-exhibit-button { display: block; width: 100%; min-width: 0; min-height: 120px; padding: 8px; border: 1px solid var(--border); border-radius: 10px; background: #fff; cursor: zoom-in; overflow: hidden; }
+.dump-exhibit-button img { display: block; width: 100%; height: auto; max-width: 100%; max-height: none; object-fit: contain; }
+.dump-exhibit-label { display: block; margin: 0 0 6px; color: #475569; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-align: left; text-transform: uppercase; }
 .dump-feedback { margin-top: 18px; padding: 16px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface); }
 .dump-feedback.correct { border-color: rgba(49, 208, 170, .42); }
 .dump-feedback.wrong { border-color: rgba(251, 113, 133, .42); }
@@ -945,6 +946,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .arabic-explanation__head .btn { width: 100%; }
   .primary-nav.open { grid-template-columns: 1fr; }
   .dump-card__head, .dump-card__actions, .quiz-top, .quiz-actions { align-items: stretch; flex-direction: column; }
+  .dump-exhibit-grid { grid-template-columns: 1fr; gap: 12px; }
+  .dump-exhibits { padding: 9px; }
+  .dump-exhibit-button { padding: 6px; }
+  .dump-exhibit-button img { width: 100%; }
   .dump-slot label, .dump-yn-row { grid-template-columns: 1fr; }
   .dump-yn-row > div { width: 100%; }
   .dump-yn { flex: 1; }

@@ -1,9 +1,9 @@
-const CACHE_NAME = "dp700-exam-simulator-2026-08-v10";
+const CACHE_NAME = "dp700-exam-simulator-2026-08-v11";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./assets/css/styles.css?v=9",
-  "./assets/js/app.js?v=10",
+  "./assets/js/app.js?v=11",
   "./assets/icon.svg",
   "./data/questions.js?v=9",
   "./data/dump.js?v=9",

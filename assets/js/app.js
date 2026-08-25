@@ -607,8 +607,8 @@
 
   function renderDump() {
     const ds = dumpStats();
-    const runs = [1, 2, 3, 4, 5].map(batch => {
-      const questions = DUMP_QUESTIONS.filter(question => question.batch === batch);
+    const runs = Object.keys(PDF_SOURCE_LABELS).map(source => {
+      const questions = DUMP_QUESTIONS.filter(question => question.sourceFile === source);
       const ids = questions.map(question => question.n);
       const progress = dumpRunStats(ids);
       const typeCounts = questions.reduce((counts, question) => {
@@ -616,7 +616,7 @@
         counts[type] = (counts[type] || 0) + 1;
         return counts;
       }, {});
-      return { batch, questions, ids, progress, typeCounts };
+      return { source, questions, ids, progress, typeCounts };
     });
 
     app.innerHTML = `
@@ -636,7 +636,7 @@
         ${runs.map(run => {
           const pct = percent(run.progress.attempted, run.questions.length);
           const types = Object.entries(run.typeCounts).map(([type, count]) => `${count} ${dumpTypeLabel({ type, selectN: 2 }).split(" · ")[0]}`).join(" · ");
-          return `<article class="dump-run-card"><div class="dump-run-card__top"><span class="dump-run-index">${run.batch}</span><span class="tag">${run.questions.length} questions</span></div><h3>DUMP Run ${run.batch}</h3><p>${types}</p><div class="meter"><span style="width:${pct}%"></span></div><small>${run.progress.attempted}/${run.questions.length} answered · ${run.progress.correct} correct</small><button class="btn btn--primary btn--small" type="button" data-action="dump-start-run" data-batch="${run.batch}">${run.progress.attempted ? "Restart run" : "Start run"} →</button></article>`;
+          return `<article class="dump-run-card"><div class="dump-run-card__top"><span class="dump-run-index">${PDF_SOURCE_LABELS[run.source]}</span><span class="tag">${run.questions.length} questions</span></div><h3>${PDF_SOURCE_LABELS[run.source]}</h3><p>${types}</p><div class="meter"><span style="width:${pct}%"></span></div><small>${run.progress.attempted}/${run.questions.length} answered · ${run.progress.correct} correct</small><button class="btn btn--primary btn--small" type="button" data-action="dump-start-run" data-source="${run.source}">${run.progress.attempted ? "Restart run" : "Start run"} →</button></article>`;
         }).join("")}
       </section>`;
   }
@@ -1996,8 +1996,9 @@
     if (action === "practice-bookmarks") startSession("review", state.bookmarks.length, "all", state.bookmarks);
     if (action === "start-dump-drill" || action === "dump-start-random") startDumpDrill(null, "Random 25");
     if (action === "dump-start-run") {
-      const batch = Number(actionButton.dataset.batch);
-      startDumpDrill(DUMP_QUESTIONS.filter(question => question.batch === batch).map(question => question.n), `DUMP Run ${batch}`);
+      const source = actionButton.dataset.source;
+      const questions = DUMP_QUESTIONS.filter(question => question.sourceFile === source);
+      startDumpDrill(questions.map(question => question.n), `${PDF_SOURCE_LABELS[source]} · ${questions.length} questions`);
     }
     if (action === "dump-start-full") startDumpDrill(DUMP_QUESTIONS.map(question => question.n), `Full DUMP · ${DUMP_QUESTIONS.length} questions`);
     if (action === "dump-review-filter") { dumpProgressFilter = "review"; dumpPage = 1; setRoute("dump-library"); }

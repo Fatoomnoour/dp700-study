@@ -19,7 +19,7 @@ The visible navigation now focuses on the Microsoft-style timed exam, the comple
 
 ## Current question and exhibit coverage
 
-The application exposes **279 interactive DUMP items** in the requested file order: DP-700N1 (118), DP-700N2 (43), then DP-700N3 (118). Every imported record has a source-page exhibit, and the library includes an explicit source-file filter. Supported controls include single choice, multiple choice, Yes/No, dropdown hotspot, and drag-and-drop with an accessible select fallback.
+The application exposes **279 interactive DUMP items** in the requested file order: DP-700N1 (118), DP-700N2 (43), then DP-700N3 (118). Every imported record has a question-specific screenshot from its source PDF page, and the library includes an explicit source-file filter. Supported controls include single choice, multiple choice, Yes/No, dropdown hotspot, and drag-and-drop with an accessible select fallback.
 
 The cheat sheet now concentrates on repeated DP-700 traps: Direct Lake guardrails and fallback, V-Order, OPTIMIZE versus VACUUM, RLS versus masking, Git versus deployment pipelines, event time versus processing time, Spark concurrency, medallion layers, and tool selection.
 
@@ -135,7 +135,7 @@ All progress remains in the learner's browser. The application has no login, bac
 
 ## Uploaded question coverage
 
-The standalone site is based on the uploaded DP-700N1, DP-700N2, and DP-700N3 question sources. The imported bank and complete interactive DUMP experience contain exactly 279 PDF records: N1 (118), N2 (43), and N3 (118), in that order. Source-dependent items are rendered with an exhibit image and interactive controls rather than static answer text whenever possible.
+The standalone site is based on the uploaded DP-700N1, DP-700N2, and DP-700N3 question sources. The imported bank and complete interactive DUMP experience contain exactly 279 PDF records: N1 (118), N2 (43), and N3 (118), in that order. Each item has a question-specific screenshot from the source page plus the interactive answer controls.
 
 Supported simulations include single choice, multiple choice, Yes/No tables, dropdown hotspots, drag-and-drop hotspots with an accessible select fallback, source exhibits, answer checking, corrected-answer feedback, explanations, bookmarks, progress tracking, and review queues. Image-dependent questions use the exhibit assets under `assets/dump/`; questions whose source image or answer choices are incomplete are marked as unscored instead of silently assigning an unsupported answer.
 

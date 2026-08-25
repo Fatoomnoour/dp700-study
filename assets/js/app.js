@@ -288,7 +288,18 @@
   function loadState() {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      return { ...defaultState(), ...saved, answers: saved?.answers || {}, bookmarks: saved?.bookmarks || [], completedLessons: saved?.completedLessons || [], lessonChecks: saved?.lessonChecks || {}, arabicOpenLessons: saved?.arabicOpenLessons || [], courseLectureProgress: saved?.courseLectureProgress || {}, courseCompletedLabs: saved?.courseCompletedLabs || [], planCompleted: saved?.planCompleted || [], sessions: saved?.sessions || [], dumpProgress: saved?.dumpProgress || {}, dumpAnswers: saved?.dumpAnswers || {}, activeDumpSession: saved?.activeDumpSession || null };
+      const restored = { ...defaultState(), ...saved, answers: saved?.answers || {}, bookmarks: saved?.bookmarks || [], completedLessons: saved?.completedLessons || [], lessonChecks: saved?.lessonChecks || {}, arabicOpenLessons: saved?.arabicOpenLessons || [], courseLectureProgress: saved?.courseLectureProgress || {}, courseCompletedLabs: saved?.courseCompletedLabs || [], planCompleted: saved?.planCompleted || [], sessions: saved?.sessions || [], dumpProgress: saved?.dumpProgress || {}, dumpAnswers: saved?.dumpAnswers || {}, activeDumpSession: saved?.activeDumpSession || null };
+      // A previous build stored image-only review results for items that now have
+      // real source choices. Clear only those stale answer objects so the new
+      // controls start unanswered instead of remaining locked on Review required.
+      const clearStale = answers => Object.fromEntries(Object.entries(answers || {}).filter(([id, answer]) => {
+        const question = DUMP_QUESTIONS.find(item => item.n === Number(id));
+        const interaction = question ? getDumpInteraction(question) : null;
+        return !(interaction && !interaction.unscored && answer?.checked && answer?.correct === null);
+      }));
+      restored.dumpAnswers = clearStale(restored.dumpAnswers);
+      if (restored.activeDumpSession?.answers) restored.activeDumpSession.answers = clearStale(restored.activeDumpSession.answers);
+      return restored;
     } catch {
       return defaultState();
     }

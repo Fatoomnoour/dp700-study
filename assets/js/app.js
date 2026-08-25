@@ -457,7 +457,9 @@
     const unscored = answer.correct === null;
     const title = unscored ? "Review required — source option set is invalid or incomplete" : answer.correct ? "✓ Correct" : "✕ Incorrect — review the validated answer";
     const className = unscored ? "unscored" : answer.correct ? "correct" : "wrong";
-    return `<div class="dump-feedback ${className}"><h3>${title}</h3><p><strong>Correct validated answer:</strong> ${escapeHtml(question.correctAnswer)}</p><p>${escapeHtml(question.explanation)}</p>${question.notes?.length ? `<div class="dump-note"><strong>Current-scope note:</strong> ${question.notes.map(escapeHtml).join(" ")}</div>` : ""}<div class="source-links">${dumpSourceLinks(question.refs)}</div></div>`;
+    const answerText = ["single", "letter-choice"].includes(interaction.type) ? question.correctAnswer : interaction.type === "multi" ? (interaction.correctLabels || []).join(", ") : interaction.type === "yesno" ? (interaction.correct || []).join(", ") : (interaction.slots || []).map(item => `${item.label}: ${item.correct}`).join(" · ");
+    const answerLabel = ["single", "letter-choice", "multi"].includes(interaction.type) ? "Correct validated answer:" : "Correct validated mapping:";
+    return `<div class="dump-feedback ${className}"><h3>${title}</h3><p><strong>${answerLabel}</strong> ${escapeHtml(answerText || "See the validated mapping above.")}</p><p>${escapeHtml(question.explanation)}</p>${question.notes?.length ? `<div class="dump-note"><strong>Current-scope note:</strong> ${question.notes.map(escapeHtml).join(" ")}</div>` : ""}<div class="source-links">${dumpSourceLinks(question.refs)}</div></div>`;
   }
 
   function renderDumpInteraction(question, context = "library") {

@@ -25,19 +25,28 @@
   const importedQuestions = [...(UPLOADED_DATA.questions || [])].sort((a, b) => (PDF_SOURCE_ORDER[a.sourceFile] || 99) - (PDF_SOURCE_ORDER[b.sourceFile] || 99) || (a.sourceQuestion || 0) - (b.sourceQuestion || 0));
   // The DUMP experience is the three uploaded PDF files only, in N1 → N2 → N3 order.
   const DUMP_QUESTIONS = importedQuestions;
-  // Practice Exam uses the same validated DUMP pool, excluding image-only or incomplete
-  // source items that cannot be represented as a fair text-choice exam question.
-  const EXAM_QUESTIONS = DUMP_QUESTIONS.filter(q => Array.isArray(q.options) && q.options.length >= 2 && /^[A-E]$/.test(String(q.correctAnswer || ""))).map(q => ({
-    ...q,
-    options: q.options.map(option => typeof option === "string" ? option : option.text),
-    correctIndex: Math.max(0, String(q.correctAnswer).split(/\s*,\s*/).map(label => ["A", "B", "C", "D", "E"].indexOf(label)).filter(index => index >= 0)[0] ?? 0),
-    title: q.title || `DP-700 ${PDF_SOURCE_LABELS[q.sourceFile] || "Question"}`,
-    area: q.conceptArea || "DP-700 concept area",
-    refs: q.refs || []
-  }));
+  // Practice Exam uses every single-answer uploaded question whose real choices
+  // are available either on the question record or in the corrected interaction metadata.
+  const EXAM_QUESTIONS = DUMP_QUESTIONS.map(q => {
+    const interaction = UPLOADED_INTERACTIONS[String(q.n)] || {};
+    const validQuestionOptions = Array.isArray(q.options) ? q.options.map(option => typeof option === "string" ? option : option?.text).filter(Boolean) : [];
+    const rawOptions = validQuestionOptions.length >= 2 ? validQuestionOptions : interaction.optionsOverride;
+    const options = Array.isArray(rawOptions) ? rawOptions.map(option => typeof option === "string" ? option : option?.text).filter(Boolean) : [];
+    const labels = Array.isArray(interaction.correctLabels) ? interaction.correctLabels : String(q.correctAnswer || "").split(/\s*,\s*/).filter(Boolean);
+    const singleAnswer = labels.length === 1 && ["A", "B", "C", "D", "E", "F", "G"].includes(labels[0]);
+    return options.length >= 2 && singleAnswer ? {
+      ...q,
+      question: String(q.question || "").replace(/\n\s+A[.)]\s*[\s\S]*$/," ").trim(),
+      options,
+      correctIndex: Math.max(0, options.findIndex((_, i) => ["A", "B", "C", "D", "E", "F", "G"][i] === labels[0])),
+      title: q.title || `DP-700 ${PDF_SOURCE_LABELS[q.sourceFile] || "Question"}`,
+      area: q.conceptArea || "DP-700 concept area",
+      refs: q.refs || []
+    } : null;
+  }).filter(Boolean);
   const STORAGE_KEY = "dp700-prep-state-v2";
   const PROFESSIONAL_STORAGE_KEY = "dp700-professional-path-v9";
-  const LETTERS = ["A", "B", "C", "D"];
+  const LETTERS = ["A", "B", "C", "D", "E", "F", "G"];
   const app = document.getElementById("app");
 
   const BASE_LESSONS = [

@@ -275,12 +275,15 @@
   // An old partial selection must not remain locked as if it were a complete answer.
   for (const question of DUMP_QUESTIONS) {
     const interaction = UPLOADED_INTERACTIONS[String(question.n)];
+    const expectedCount = Number(interaction?.selectN || interaction?.correctLabels?.length || 2);
     const saved = state.dumpAnswers?.[question.n];
-    if (interaction?.type === "multi" && saved && (saved.selected?.length !== Number(interaction.selectN || interaction.correctLabels?.length || 2))) {
-      delete state.dumpAnswers[question.n];
+    const activeSaved = state.activeDumpSession?.answers?.[question.n];
+    if (interaction?.type === "multi") {
+      if (saved && saved.selected?.length !== expectedCount) delete state.dumpAnswers[question.n];
+      if (activeSaved && activeSaved.selected?.length !== expectedCount) delete state.activeDumpSession.answers[question.n];
     }
   }
-  if (state.dumpAnswers) localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (state.dumpAnswers || state.activeDumpSession?.answers) localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   // Discard an old exam session if its question IDs are no longer in the validated
   // answerable DUMP-derived pool; this prevents stale multi-answer UI from resurfacing.
   if (state.activeSession?.mode === "exam" && state.activeSession.ids?.some(id => !EXAM_QUESTIONS.some(q => q.n === Number(id)))) {

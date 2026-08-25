@@ -6,6 +6,7 @@
   const DUMP_INTERACTION_DATA = window.DP700_DUMP_INTERACTIONS || { meta: { typeCounts: {}, unscoredQuestions: [] }, questions: {} };
   const UPLOADED_DATA = window.DP700_UPLOADED || { questions: [], meta: {} };
   const UPLOADED_INTERACTIONS = window.DP700_UPLOADED_INTERACTIONS || {};
+  const DUMP_PAGE_FALLBACKS = window.DP700_DUMP_PAGE_FALLBACKS || {};
   if (!DATA || !Array.isArray(DATA.questions)) {
     document.getElementById("app").innerHTML = '<div class="empty-state"><h1>The original question bank could not be loaded.</h1><p>Make sure the data folder is next to index.html.</p></div>';
     return;
@@ -136,7 +137,10 @@
     { title: "Delta maintenance", rows: [["MERGE", "Upsert"], ["OPTIMIZE", "Compact small files"], ["VACUUM", "Delete obsolete files"], ["V-Order", "Read-optimized file layout"]] },
     { title: "Governance", rows: [["Sensitivity label", "Classification and protection"], ["Promoted", "Ready to share"], ["Certified", "Formal approval"], ["Purview audit", "Who did what and when"]] },
     { title: "Streaming recovery", rows: [["Checkpoint", "Offsets, commits, and state"], ["Unique path", "One path per query"], ["Event time", "When the event occurred"], ["Processing time", "When the system handled it"]] },
-    { title: "Performance signals", rows: [["Straggler task", "Often data skew"], ["Executor OOM", "Large partition/skew"], ["Driver OOM", "Large collect/result"], ["Small files", "OPTIMIZE or batched writes"]] }
+    { title: "Performance signals", rows: [["Straggler task", "Often data skew"], ["Executor OOM", "Large partition/skew"], ["Driver OOM", "Large collect/result"], ["Small files", "OPTIMIZE or batched writes"]] },
+    { title: "Direct Lake guardrails", rows: [["Direct Lake on OneLake", "Reads supported Delta data through OneLake"], ["Direct Lake on SQL", "Can fall back to DirectQuery for unsupported access paths"], ["Framing", "Refreshes Delta metadata references; not an Import copy"], ["Capacity guardrail", "Capacity-specific limits can trigger errors or fallback"], ["Cold vs warm", "First load is slower; warm data is faster"]] },
+    { title: "Direct Lake optimization", rows: [["Large row groups", "Prefer healthy, larger groups over tiny fragments"], ["V-Order", "Read optimization with write-time cost"], ["Small files", "Batch writes, auto-compaction, and OPTIMIZE"], ["Cardinality", "Reduce unnecessary high-cardinality columns"], ["Fallback check", "Investigate SQL views, unsupported objects, and RLS paths"]] },
+    { title: "Exam traps", rows: [["OPTIMIZE vs VACUUM", "Compact active files vs remove obsolete files"], ["RLS vs masking", "Filter rows vs obscure returned values"], ["Git vs deployment", "Version history vs environment promotion"], ["Viewer vs Contributor", "Consume vs author"], ["Event time", "When event happened, not processing time"]] }
   ];
 
   const STUDY_PLAN = [
@@ -320,7 +324,10 @@
   }
 
   function getDumpInteraction(question) {
-    return DUMP_INTERACTION_DATA.questions?.[question.n] || UPLOADED_INTERACTIONS[String(question.n)] || { type: "single", selectN: 1, correctLabels: [] };
+    const base = DUMP_INTERACTION_DATA.questions?.[question.n] || UPLOADED_INTERACTIONS[String(question.n)] || { type: "single", selectN: 1, correctLabels: [] };
+    const fallback = DUMP_PAGE_FALLBACKS[String(question.n)] || {};
+    const assets = [...new Set([...(base.assets || []), ...(fallback.assets || [])])];
+    return { ...base, assets };
   }
 
   function defaultDumpAnswer(interaction) {
@@ -528,22 +535,13 @@
     const s = stats();
     const streak = calculateStreak();
     const features = [
-      ["course", "▤", "Professional Course", "Modules, lecture path, guided labs, exam patterns, and similar-question practice", `${COURSE.modules.length} modules`, "#a78bfa"],
-      ["study", "◫", "Visual Learning", "Memory maps, video chapters, code snapshots, and quick checks", `${LESSONS.length} lessons`, "#22d3ee"],
-      ["practice", "◎", "Question Practice", "Instant explanations and official sources", "100 questions", "#4f8cff"],
-      ["exam", "◷", "Exam Simulator", "40 questions in 45 minutes with hidden answers", "45 minutes", "#fb923c"],
-      ["quick", "ϟ", "Quick Quiz", "10 mixed questions in 5 minutes", "5 minutes", "#22d3ee"],
-      ["dump", "⚡", "DUMP — Interactive & Validated", `${DUMP_QUESTIONS.length} supplied questions rebuilt as choice, drag/drop, and hotspot interactions`, `${DUMP_QUESTIONS.length} questions`, "#fbbf24"],
-      ["important", "!", "IMPORTANT Practice Bank", "Independent 93-question simulator from the supplied HTML file", "Separate section", "#fb7185"],
-      ["review", "↻", "Smart Review", "Automatically focus on errors and bookmarks", `${s.wrong} errors`, "#a78bfa"],
-      ["analytics", "▥", "Performance Analytics", "Batch accuracy and recent session history", `${s.accuracy}% accuracy`, "#31d0aa"],
-      ["flashcards", "▤", "Flashcards", "Recall the concept, then reveal the answer", "100 cards", "#fbbf24"],
-      ["cheatsheet", "≡", "Cheat Sheet", "High-yield comparisons in a printable sheet", "8 topics", "#60a5fa"],
-      ["bookmarks", "☆", "Bookmarks", "Return to questions you marked for review", `${state.bookmarks.length} saved`, "#fb7185"],
-      ["roadmap", "◉", "100% Study Plan", "A five-day plan with trackable tasks", `${state.planCompleted.length}/15 tasks`, "#f59e0b"],
-      ["compare", "▦", "Tool Comparison", "Know when to choose Pipeline, Dataflow, Notebook, and more", "10 tools", "#38bdf8"],
-      ["decision", "⌁", "Decision Tree", "Map a requirement to the right Fabric tool", "7 scenarios", "#8b5cf6"],
-      ["sources", "↗", "Official Sources", `${Object.keys(SOURCES).length} Microsoft Learn and Azure references`, "Microsoft", "#34d399"]
+      ["exam", "◷", "Microsoft-style Exam", "Timed 40-question simulation with hidden answers until submission", "45 minutes", "#fb923c"],
+      ["dump", "⚡", "DUMP Question Bank", `${DUMP_QUESTIONS.length} PDF-backed questions with source exhibits and interactive controls`, `${DUMP_QUESTIONS.length} questions`, "#fbbf24"],
+      ["review", "↻", "Review Mistakes", "Focus on incorrect answers and saved questions", `${s.wrong} errors`, "#a78bfa"],
+      ["analytics", "▥", "Exam Analytics", "Accuracy, attempts, timing, and progress by topic", `${s.accuracy}% accuracy`, "#31d0aa"],
+      ["cheatsheet", "≡", "High-Yield Cheat Sheet", "Repeated concepts, guardrails, and exam hints", "Direct Lake + pitfalls", "#60a5fa"],
+      ["bookmarks", "☆", "Saved Questions", "Return to questions you marked for review", `${state.bookmarks.length} saved`, "#fb7185"],
+      ["sources", "↗", "Official Sources", `${Object.keys(SOURCES).length} Microsoft Learn references`, "Microsoft", "#34d399"]
     ];
     const batchNames = ["Management & Governance", "Ingestion & Architecture", "Real-Time Analytics", "Monitoring & Optimization"];
     const domainCards = [1, 2, 3, 4].map((batch, index) => {
@@ -558,10 +556,10 @@
         <div>
           <span class="hero__badge">✓ Aligned to the skills outline published for July 21, 2026</span>
           <h1>Prepare for <span class="gradient-text">DP-700</span><br>with real understanding.</h1>
-          <p>Learn Microsoft Fabric through ${LESSONS.length} visual lessons, then practice 100 original questions and complete the imported interactive PDF bank, and open the separate IMPORTANT simulator with progress saved on your device.</p>
+          <p>Simulate the Microsoft DP-700 exam, practice the complete PDF-backed question bank, review mistakes, and use the focused cheat sheet with progress saved on your device.</p>
           <div class="hero__actions">
-            <button class="btn btn--primary" type="button" data-route="practice">Start practicing →</button>
-            <button class="btn btn--secondary" type="button" data-route="study">Open Visual Learning</button>
+            <button class="btn btn--primary" type="button" data-route="exam">Start exam simulation →</button>
+            <button class="btn btn--secondary" type="button" data-route="dump">Open PDF question bank</button>
             ${state.activeSession && !state.activeSession.submitted ? '<button class="btn btn--secondary" type="button" data-action="resume-session">Resume session</button>' : ""}
           </div>
         </div>
@@ -1596,7 +1594,7 @@
 
   function renderCheatsheet() {
     app.innerHTML = `
-      ${pageHead("HIGH-YIELD", "Cheat Sheet", "A high-yield reference for selecting the right Fabric tool and concept. Print it or save it as PDF.", '<button class="btn btn--secondary" type="button" data-action="print">Print / PDF</button>')}
+      ${pageHead("EXAM-DAY REFERENCE", "DP-700 Cheat Sheet", "Repeated concepts, decision rules, Direct Lake guardrails, performance alerts, and Microsoft-style exam hints. Print or save as PDF.", '<button class="btn btn--secondary" type="button" data-action="print">Print / PDF</button>')}
       <section class="cheat-grid">${CHEAT_SECTIONS.map(section => `<article class="cheat-card"><h3>${escapeHtml(section.title)}</h3><dl>${section.rows.map(([term, meaning]) => `<dt>${escapeHtml(term)}</dt><dd>${escapeHtml(meaning)}</dd>`).join("")}</dl></article>`).join("")}</section>`;
   }
 

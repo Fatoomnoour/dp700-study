@@ -1,10 +1,25 @@
-# DP-700 Professional Mastery — v9
+# DP-700 Fabric Exam Simulator
 
-A fully static Microsoft DP-700 learning and exam-preparation website built with HTML, CSS, Vanilla JavaScript, `localStorage`, and a PWA service worker. It remains compatible with direct GitHub Pages hosting and requires no backend, npm installation, or build step.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-0b7a75?logo=github)](https://fatoomnoour.github.io/dp700-study/)
+[![Question Bank](https://img.shields.io/badge/Interactive%20Questions-397-f59e0b)](https://fatoomnoour.github.io/dp700-study/)
+[![Static PWA](https://img.shields.io/badge/Architecture-Static%20PWA-2563eb)](https://github.com/Fatoomnoour/dp700-study)
+[![Microsoft Learn](https://img.shields.io/badge/Aligned%20with-DP--700-107c10)](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-700)
+
+A focused, browser-based Microsoft Fabric DP-700 exam simulator built with HTML, CSS, Vanilla JavaScript, `localStorage`, and a PWA service worker. The redesigned experience prioritizes the core exam simulation, source-backed DUMP practice, mistakes review, analytics, and a high-yield cheat sheet. It runs directly on GitHub Pages with no backend, npm installation, or learner tracking.
+
+## Exam-focused experience
+
+The visible navigation now focuses on the Microsoft-style timed exam, the complete DUMP bank, analytics, review, bookmarks, official sources, and the professional cheat sheet. Learn, Course, Practice, Quick, the legacy simulator, and Flashcards are no longer exposed as primary navigation items.
+
+## Current question and exhibit coverage
+
+The application exposes **397 interactive DUMP items**: the existing bank plus 279 imported records from DP-700N1, DP-700N2, and DP-700N3. Every imported record has a source-page exhibit, and the original DUMP set receives a mapped page-image fallback. Supported controls include single choice, multiple choice, Yes/No, dropdown hotspot, and drag-and-drop with an accessible select fallback.
+
+The cheat sheet now concentrates on repeated DP-700 traps: Direct Lake guardrails and fallback, V-Order, OPTIMIZE versus VACUUM, RLS versus masking, Git versus deployment pipelines, event time versus processing time, Spark concurrency, medallion layers, and tool selection.
 
 ## v9 professional-learning system
 
-Version 9 extends the existing v8 course without changing the protected Practice, DUMP, or IMPORTANT question banks.
+The deeper lesson and professional-path assets remain in the repository for reference, but they are not part of the primary exam navigation.
 
 - 15 existing course modules and all 213 existing lesson activities remain in their original order.
 - Every activity continues to open as a complete bilingual lesson.
@@ -32,6 +47,10 @@ Version 9 extends the existing v8 course without changing the protected Practice
   - Real-Time Intelligence Platform
 - Separate `localStorage` namespace: `dp700-professional-path-v9`.
 - v9 progress is included in progress export/import.
+
+## Repository quality and portfolio presentation
+
+The repository includes a live-demo badge, Microsoft Learn alignment, source attribution, accessible answer controls, explicit unscored handling, reproducible static hosting, and small feature-focused commits. Recommended GitHub profile improvements are to pin this repository, add the `microsoft-fabric`, `dp-700`, `data-engineering`, `spark`, and `lakehouse` topics, keep the live demo and screenshot current, and use concise commit messages. GitHub achievement badges are earned by the account through legitimate GitHub activity; they cannot be safely or honestly fabricated by the repository itself.
 
 ## Protected existing content
 
@@ -110,7 +129,7 @@ All progress remains in the learner's browser. The application has no login, bac
 
 ## Uploaded question coverage
 
-The standalone site is based on the uploaded DP-700N1, DP-700N2, and DP-700N3 question sources. The validated bank contains the 118-question corrected review set, while the original practice bank contains 100 original scenario questions. Source-dependent items are rendered as interactive controls rather than static answer text whenever an interaction definition is available.
+The standalone site is based on the uploaded DP-700N1, DP-700N2, and DP-700N3 question sources. The imported bank contains 279 PDF records, while the complete interactive DUMP experience exposes 397 items including the existing bank. Source-dependent items are rendered with an exhibit image and interactive controls rather than static answer text whenever possible.
 
 Supported simulations include single choice, multiple choice, Yes/No tables, dropdown hotspots, drag-and-drop hotspots with an accessible select fallback, source exhibits, answer checking, corrected-answer feedback, explanations, bookmarks, progress tracking, and review queues. Image-dependent questions use the exhibit assets under `assets/dump/`; questions whose source image or answer choices are incomplete are marked as unscored instead of silently assigning an unsupported answer.
 

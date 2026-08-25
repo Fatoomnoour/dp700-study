@@ -1,11 +1,17 @@
 # DP-700 Fabric Exam Simulator
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-0b7a75?logo=github)](https://fatoomnoour.github.io/dp700-study/)
-[![Question Bank](https://img.shields.io/badge/Interactive%20Questions-397-f59e0b)](https://fatoomnoour.github.io/dp700-study/)
+[![Question Bank](https://img.shields.io/badge/Interactive%20Questions-279-f59e0b)](https://fatoomnoour.github.io/dp700-study/)
 [![Static PWA](https://img.shields.io/badge/Architecture-Static%20PWA-2563eb)](https://github.com/Fatoomnoour/dp700-study)
 [![Microsoft Learn](https://img.shields.io/badge/Aligned%20with-DP--700-107c10)](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-700)
 
 A focused, browser-based Microsoft Fabric DP-700 exam simulator built with HTML, CSS, Vanilla JavaScript, `localStorage`, and a PWA service worker. The redesigned experience prioritizes the core exam simulation, source-backed DUMP practice, mistakes review, analytics, and a high-yield cheat sheet. It runs directly on GitHub Pages with no backend, npm installation, or learner tracking.
+
+## Demo
+
+![DP-700 simulator demo](assets/media/dp700-demo.gif)
+
+The short [MP4 interface walkthrough](assets/media/dp700-demo.mp4) shows the dashboard, timed exam simulation, 279-question DUMP bank, source exhibits, and high-yield cheat sheet. A still storyboard is available at [`assets/media/dp700-demo-storyboard.jpg`](assets/media/dp700-demo-storyboard.jpg).
 
 ## Exam-focused experience
 
@@ -13,7 +19,7 @@ The visible navigation now focuses on the Microsoft-style timed exam, the comple
 
 ## Current question and exhibit coverage
 
-The application exposes **397 interactive DUMP items**: the existing bank plus 279 imported records from DP-700N1, DP-700N2, and DP-700N3. Every imported record has a source-page exhibit, and the original DUMP set receives a mapped page-image fallback. Supported controls include single choice, multiple choice, Yes/No, dropdown hotspot, and drag-and-drop with an accessible select fallback.
+The application exposes **279 interactive DUMP items** in the requested file order: DP-700N1 (118), DP-700N2 (43), then DP-700N3 (118). Every imported record has a source-page exhibit, and the library includes an explicit source-file filter. Supported controls include single choice, multiple choice, Yes/No, dropdown hotspot, and drag-and-drop with an accessible select fallback.
 
 The cheat sheet now concentrates on repeated DP-700 traps: Direct Lake guardrails and fallback, V-Order, OPTIMIZE versus VACUUM, RLS versus masking, Git versus deployment pipelines, event time versus processing time, Spark concurrency, medallion layers, and tool selection.
 
@@ -129,7 +135,7 @@ All progress remains in the learner's browser. The application has no login, bac
 
 ## Uploaded question coverage
 
-The standalone site is based on the uploaded DP-700N1, DP-700N2, and DP-700N3 question sources. The imported bank contains 279 PDF records, while the complete interactive DUMP experience exposes 397 items including the existing bank. Source-dependent items are rendered with an exhibit image and interactive controls rather than static answer text whenever possible.
+The standalone site is based on the uploaded DP-700N1, DP-700N2, and DP-700N3 question sources. The imported bank and complete interactive DUMP experience contain exactly 279 PDF records: N1 (118), N2 (43), and N3 (118), in that order. Source-dependent items are rendered with an exhibit image and interactive controls rather than static answer text whenever possible.
 
 Supported simulations include single choice, multiple choice, Yes/No tables, dropdown hotspots, drag-and-drop hotspots with an accessible select fallback, source exhibits, answer checking, corrected-answer feedback, explanations, bookmarks, progress tracking, and review queues. Image-dependent questions use the exhibit assets under `assets/dump/`; questions whose source image or answer choices are incomplete are marked as unscored instead of silently assigning an unsupported answer.
 

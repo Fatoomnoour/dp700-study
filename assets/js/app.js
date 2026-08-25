@@ -20,7 +20,11 @@
   const PRO_PATH = window.DP700_PROFESSIONAL_PATH || { bootcamp: [], diagnostic: { questions: [] }, masteryLevels: [], challengeLabs: [], troubleshootingLabs: [], decisionScenarios: [], projects: [], assessments: {} };
   const SOURCES = Object.fromEntries([...DATA.sources, ...(VISUAL_LEARNING.sources || [])].map(source => [source.id, source]));
   const DUMP_SOURCES = Object.fromEntries(DUMP_DATA.sources.map(source => [source.id, source]));
-  const DUMP_QUESTIONS = [...DUMP_DATA.questions, ...(UPLOADED_DATA.questions || [])];
+  const PDF_SOURCE_ORDER = { "DP-700N1.pdf": 1, "DP-700N2.pdf": 2, "DP-700N3.pdf": 3 };
+  const PDF_SOURCE_LABELS = { "DP-700N1.pdf": "DP-700N1", "DP-700N2.pdf": "DP-700N2", "DP-700N3.pdf": "DP-700N3" };
+  const importedQuestions = [...(UPLOADED_DATA.questions || [])].sort((a, b) => (PDF_SOURCE_ORDER[a.sourceFile] || 99) - (PDF_SOURCE_ORDER[b.sourceFile] || 99) || (a.sourceQuestion || 0) - (b.sourceQuestion || 0));
+  // The DUMP experience is the three uploaded PDF files only, in N1 → N2 → N3 order.
+  const DUMP_QUESTIONS = importedQuestions;
   const STORAGE_KEY = "dp700-prep-state-v2";
   const PROFESSIONAL_STORAGE_KEY = "dp700-professional-path-v9";
   const LETTERS = ["A", "B", "C", "D"];
@@ -259,6 +263,7 @@
   let decisionChoice = "orchestrate";
   let dumpSearch = "";
   let dumpBatch = "all";
+  let dumpSource = "all";
   let dumpStatus = "all";
   let dumpProgressFilter = "all";
   let dumpPage = 1;
@@ -626,7 +631,7 @@
         ${statCard("Question types", 5, "Choice, Drag & Drop and Hotspots", "↔", "#fbbf24")}
       </section>
       <div class="setup-note"><strong>Scoring rule:</strong> All scored items use the independently corrected answer key. Nothing from the old supplied answer is shown before you submit your choice.</div>
-      <div class="section-title"><div><h2>Choose a DUMP run</h2><p>Questions stay in source order inside each run</p></div></div>
+      <div class="section-title"><div><h2>Choose a DUMP run</h2><p>Imported PDF questions are ordered DP-700N1 → DP-700N2 → DP-700N3; each item includes its source exhibit.</p></div></div>
       <section class="dump-run-grid">
         ${runs.map(run => {
           const pct = percent(run.progress.attempted, run.questions.length);
@@ -642,10 +647,11 @@
     const filtered = DUMP_QUESTIONS.filter(question => {
       const matchesSearch = !needle || `${question.n} ${question.question} ${question.correctAnswer} ${question.explanation} ${question.conceptArea}`.toLowerCase().includes(needle);
       const matchesBatch = dumpBatch === "all" || question.batch === Number(dumpBatch);
+      const matchesSource = dumpSource === "all" || question.sourceFile === dumpSource;
       const matchesStatus = dumpStatus === "all" || question.status.toLowerCase() === dumpStatus;
       const progress = state.dumpProgress[question.n] || "untracked";
       const matchesProgress = dumpProgressFilter === "all" || progress === dumpProgressFilter;
-      return matchesSearch && matchesBatch && matchesStatus && matchesProgress;
+      return matchesSearch && matchesBatch && matchesSource && matchesStatus && matchesProgress;
     });
     const pageSize = 4;
     const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -667,6 +673,7 @@
       <div class="toolbar">
         <label class="search-field"><span aria-hidden="true">⌕</span><input id="dumpSearch" type="search" value="${escapeHtml(dumpSearch)}" placeholder="Search question text, concept, answer, or explanation..." aria-label="Search DUMP questions"></label>
         <select class="select-field" id="dumpBatch" aria-label="Filter by batch"><option value="all">All batches</option>${[1,2,3,4,5].map(batch => `<option value="${batch}" ${dumpBatch === String(batch) ? "selected" : ""}>Batch ${batch}</option>`).join("")}</select>
+        <select class="select-field" id="dumpSource" aria-label="Filter by source file"><option value="all">All PDF files</option>${Object.keys(PDF_SOURCE_LABELS).map(source => `<option value="${source}" ${dumpSource === source ? "selected" : ""}>${PDF_SOURCE_LABELS[source]}</option>`).join("")}</select>
         <select class="select-field" id="dumpProgress" aria-label="Filter by study progress"><option value="all">All study states</option><option value="untracked" ${dumpProgressFilter === "untracked" ? "selected" : ""}>Untracked</option><option value="mastered" ${dumpProgressFilter === "mastered" ? "selected" : ""}>Mastered</option><option value="review" ${dumpProgressFilter === "review" ? "selected" : ""}>Review queue</option></select>
       </div>
       <div class="section-title"><div><h2>${filtered.length} matching questions</h2><p>Page ${dumpPage} of ${pageCount}</p></div></div>
@@ -675,7 +682,7 @@
           const progress = state.dumpProgress[question.n] || "untracked";
           const interaction = getDumpInteraction(question);
           return `<article class="dump-card" id="dump-${question.n}">
-            <div class="dump-card__head"><div class="dump-card__head-group"><span class="dump-card__number">#${question.n}</span><span class="tag">Run ${question.batch}</span><span class="tag">${dumpTypeLabel(interaction)}</span></div><span class="tag">${escapeHtml(question.conceptArea || "DP-700")}</span></div>
+            <div class="dump-card__head"><div class="dump-card__head-group"><span class="dump-card__number">#${question.n}</span><span class="tag">${question.sourceFile ? PDF_SOURCE_LABELS[question.sourceFile] : `Run ${question.batch}`}</span><span class="tag">${dumpTypeLabel(interaction)}</span></div><span class="tag">${escapeHtml(question.conceptArea || "DP-700")}</span></div>
             <div class="dump-card__body"><p class="dump-question">${escapeHtml(dumpDisplayPrompt(question, interaction))}</p>
               ${renderDumpInteraction(question, "library")}
               <div class="dump-card__actions"><div></div><div><button class="btn btn--secondary btn--small dump-progress ${progress === "mastered" ? "mastered" : ""}" type="button" data-action="dump-rate" data-value="mastered" data-id="${question.n}">✓ Mastered</button><button class="btn btn--secondary btn--small dump-progress ${progress === "review" ? "review" : ""}" type="button" data-action="dump-rate" data-value="review" data-id="${question.n}">↻ Review later</button></div></div>
@@ -714,7 +721,7 @@
       const classes = [index === session.index ? "current" : "", saved?.checked ? "answered" : "", saved?.correct === true ? "correct" : "", saved?.correct === false ? "wrong" : ""].filter(Boolean).join(" ");
       return `<button class="${classes}" type="button" data-action="dump-drill-jump" data-index="${index}" aria-label="Go to question ${index + 1}">${index + 1}</button>`;
     }).join("");
-    app.innerHTML = `<section class="quiz-shell"><div class="quiz-top"><div><p class="eyebrow">${escapeHtml(session.label || "INTERACTIVE DUMP RUN")}</p><span class="question-number">Question ${session.index + 1} of ${session.ids.length}</span></div><button class="btn btn--secondary btn--small" type="button" data-route="dump">Exit run</button></div><div class="quiz-progress"><span style="width:${percent(session.index + 1, session.ids.length)}%"></span></div><div class="question-tags"><span class="tag">DUMP #${question.n}</span><span class="tag">Run ${question.batch}</span><span class="tag">${dumpTypeLabel(interaction)}</span><span class="tag">Corrected answer key</span></div><h1 class="question-text" style="white-space:pre-wrap">${escapeHtml(dumpDisplayPrompt(question, interaction))}</h1>${renderDumpInteraction(question, "drill")}<div class="quiz-actions"><button class="btn btn--secondary" type="button" data-action="dump-drill-prev" ${session.index === 0 ? "disabled" : ""}>← Previous</button><button class="btn btn--primary" type="button" data-action="dump-drill-next" ${answer.checked ? "" : "disabled"}>${session.index === session.ids.length - 1 ? "Finish run" : "Next question →"}</button></div><div class="dump-palette" aria-label="DUMP question navigation">${palette}</div></section>`;
+    app.innerHTML = `<section class="quiz-shell"><div class="quiz-top"><div><p class="eyebrow">${escapeHtml(session.label || "INTERACTIVE DUMP RUN")}</p><span class="question-number">Question ${session.index + 1} of ${session.ids.length}</span></div><button class="btn btn--secondary btn--small" type="button" data-route="dump">Exit run</button></div><div class="quiz-progress"><span style="width:${percent(session.index + 1, session.ids.length)}%"></span></div><div class="question-tags"><span class="tag">DUMP #${question.n}</span><span class="tag">${question.sourceFile ? PDF_SOURCE_LABELS[question.sourceFile] : `Run ${question.batch}`}</span><span class="tag">${dumpTypeLabel(interaction)}</span><span class="tag">Corrected answer key</span></div><h1 class="question-text" style="white-space:pre-wrap">${escapeHtml(dumpDisplayPrompt(question, interaction))}</h1>${renderDumpInteraction(question, "drill")}<div class="quiz-actions"><button class="btn btn--secondary" type="button" data-action="dump-drill-prev" ${session.index === 0 ? "disabled" : ""}>← Previous</button><button class="btn btn--primary" type="button" data-action="dump-drill-next" ${answer.checked ? "" : "disabled"}>${session.index === session.ids.length - 1 ? "Finish run" : "Next question →"}</button></div><div class="dump-palette" aria-label="DUMP question navigation">${palette}</div></section>`;
   }
 
   function rateDumpQuestion(id, value) {
@@ -2158,6 +2165,7 @@
       renderRoadmap();
     }
     if (event.target.id === "dumpBatch") { dumpBatch = event.target.value; dumpPage = 1; renderDumpLibrary(); }
+    if (event.target.id === "dumpSource") { dumpSource = event.target.value; dumpPage = 1; renderDumpLibrary(); }
     if (event.target.id === "dumpStatus") { dumpStatus = event.target.value; dumpPage = 1; renderDumpLibrary(); }
     if (event.target.id === "dumpProgress") { dumpProgressFilter = event.target.value; dumpPage = 1; renderDumpLibrary(); }
   });

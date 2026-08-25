@@ -582,6 +582,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .dump-exhibit-button { display: block; width: 100%; min-width: 0; min-height: 120px; padding: 8px; border: 1px solid var(--border); border-radius: 10px; background: #fff; cursor: zoom-in; overflow: hidden; }
 .dump-exhibit-button img { display: block; width: 100%; height: auto; max-width: 100%; max-height: none; object-fit: contain; }
 .dump-exhibit-label { display: block; margin: 0 0 6px; color: #475569; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-align: left; text-transform: uppercase; }
+.dump-source-review { margin: 14px 0; padding: 14px 16px; border: 1px dashed rgba(251, 191, 36, .5); border-radius: 12px; background: rgba(251, 191, 36, .08); color: var(--muted); }
+.dump-source-review p { margin: 0; line-height: 1.55; }
 .dump-feedback { margin-top: 18px; padding: 16px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface); }
 .dump-feedback.correct { border-color: rgba(49, 208, 170, .42); }
 .dump-feedback.wrong { border-color: rgba(251, 113, 133, .42); }

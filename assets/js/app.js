@@ -25,6 +25,16 @@
   const importedQuestions = [...(UPLOADED_DATA.questions || [])].sort((a, b) => (PDF_SOURCE_ORDER[a.sourceFile] || 99) - (PDF_SOURCE_ORDER[b.sourceFile] || 99) || (a.sourceQuestion || 0) - (b.sourceQuestion || 0));
   // The DUMP experience is the three uploaded PDF files only, in N1 → N2 → N3 order.
   const DUMP_QUESTIONS = importedQuestions;
+  // Practice Exam uses the same validated DUMP pool, excluding image-only or incomplete
+  // source items that cannot be represented as a fair text-choice exam question.
+  const EXAM_QUESTIONS = DUMP_QUESTIONS.filter(q => Array.isArray(q.options) && q.options.length >= 2 && /^[A-E]$/.test(String(q.correctAnswer || ""))).map(q => ({
+    ...q,
+    options: q.options.map(option => typeof option === "string" ? option : option.text),
+    correctIndex: Math.max(0, String(q.correctAnswer).split(/\s*,\s*/).map(label => ["A", "B", "C", "D", "E"].indexOf(label)).filter(index => index >= 0)[0] ?? 0),
+    title: q.title || `DP-700 ${PDF_SOURCE_LABELS[q.sourceFile] || "Question"}`,
+    area: q.conceptArea || "DP-700 concept area",
+    refs: q.refs || []
+  }));
   const STORAGE_KEY = "dp700-prep-state-v2";
   const PROFESSIONAL_STORAGE_KEY = "dp700-professional-path-v9";
   const LETTERS = ["A", "B", "C", "D"];
@@ -252,6 +262,12 @@
   }
 
   let state = loadState();
+  // Discard an old exam session if its question IDs are no longer in the validated
+  // answerable DUMP-derived pool; this prevents stale multi-answer UI from resurfacing.
+  if (state.activeSession?.mode === "exam" && state.activeSession.ids?.some(id => !EXAM_QUESTIONS.some(q => q.n === Number(id)))) {
+    state.activeSession = null;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
   let professionalState = loadProfessionalState();
   let activeTimer = null;
   let studyFilter = "All";
@@ -298,6 +314,7 @@
   }
 
   function getQuestion(id) { return QUESTIONS.find(q => q.n === Number(id)); }
+  function getSessionQuestion(id) { return state.activeSession?.mode === "exam" ? EXAM_QUESTIONS.find(q => q.n === Number(id)) : getQuestion(id); }
   function percent(part, total) { return total ? Math.round((part / total) * 100) : 0; }
   function unique(values) { return [...new Set(values)]; }
   function formatDate(value) { return value ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "—"; }
@@ -339,6 +356,7 @@
     if (["single", "multi"].includes(interaction.type)) return { selected: [], checked: false, correct: null };
     if (["dropdown", "dragdrop"].includes(interaction.type)) return { values: new Array(interaction.slots?.length || 0).fill(""), checked: false, correct: null };
     if (interaction.type === "yesno") return { values: new Array(interaction.statements?.length || 0).fill(""), checked: false, correct: null };
+    if (interaction.type === "review") return { checked: false, correct: null };
     return { checked: false, correct: null };
   }
 
@@ -369,6 +387,7 @@
     if (interaction.type === "single") return answer.selected?.length === 1;
     if (interaction.type === "multi") return answer.selected?.length === Number(interaction.selectN || interaction.correctLabels?.length || 2);
     if (["dropdown", "dragdrop", "yesno"].includes(interaction.type)) return Boolean(answer.values?.length) && answer.values.every(Boolean);
+    if (interaction.type === "review") return true;
     return false;
   }
 
@@ -382,11 +401,11 @@
     }
     if (["dropdown", "dragdrop"].includes(interaction.type)) return interaction.slots.every((item, index) => answer.values[index] === item.correct);
     if (interaction.type === "yesno") return interaction.correct.every((value, index) => answer.values[index] === value);
-    return false;
+    return null;
   }
 
   function dumpTypeLabel(interaction) {
-    return ({ single: "Single choice", multi: `Multiple choice · Select ${interaction.selectN}`, dragdrop: "Drag & drop", dropdown: "Hotspot / dropdown", yesno: "Hotspot · Yes/No" })[interaction.type] || "Interactive";
+    return ({ single: "Single choice", multi: `Multiple choice · Select ${interaction.selectN}`, dragdrop: "Drag & drop", dropdown: "Hotspot / dropdown", yesno: "Hotspot · Yes/No", review: "Source review · image-backed" })[interaction.type] || "Interactive";
   }
 
   function dumpDisplayPrompt(question, interaction = getDumpInteraction(question)) {
@@ -449,6 +468,10 @@
         const wrong = locked && value !== item.correct;
         return `<div class="dump-slot ${correct ? "correct" : wrong ? "wrong" : ""}" data-action="dump-place-chip" data-id="${question.n}" data-slot="${index}"><label for="dump-slot-${context}-${question.n}-${index}"><span>${escapeHtml(item.label)}</span><select id="dump-slot-${context}-${question.n}-${index}" data-dump-slot data-id="${question.n}" data-slot="${index}" ${locked ? "disabled" : ""}><option value="">Choose a value…</option>${item.choices.map(choice => `<option value="${escapeHtml(choice)}" ${choice === value ? "selected" : ""}>${escapeHtml(choice)}</option>`).join("")}</select></label>${locked ? `<small>${correct ? "Correct" : `Correct: ${escapeHtml(item.correct)}`}</small>` : ""}</div>`;
       }).join("")}</div>`;
+    }
+
+    if (interaction.type === "review") {
+      controls = `<div class="dump-source-review"><p><strong>Image-backed question.</strong> Review the complete source screenshot above, then reveal the independently corrected validation below. The original PDF answer is not used as the grading key for this item.</p></div>`;
     }
 
     if (interaction.type === "yesno") {
@@ -540,7 +563,7 @@
     const s = stats();
     const streak = calculateStreak();
     const features = [
-      ["exam", "◷", "Microsoft-style Exam", "Timed 40-question simulation with hidden answers until submission", "45 minutes", "#fb923c"],
+      ["exam", "◷", "Practice Exam", "Real timed 40-question Microsoft-style exam with hidden answers until submission", "45 minutes", "#fb923c"],
       ["dump", "⚡", "DUMP Question Bank", `${DUMP_QUESTIONS.length} PDF-backed questions with source exhibits and interactive controls`, `${DUMP_QUESTIONS.length} questions`, "#fbbf24"],
       ["review", "↻", "Review Mistakes", "Focus on incorrect answers and saved questions", `${s.wrong} errors`, "#a78bfa"],
       ["analytics", "▥", "Exam Analytics", "Accuracy, attempts, timing, and progress by topic", `${s.accuracy}% accuracy`, "#31d0aa"],
@@ -563,7 +586,7 @@
           <h1>Prepare for <span class="gradient-text">DP-700</span><br>with real understanding.</h1>
           <p>Simulate the Microsoft DP-700 exam, practice the complete PDF-backed question bank, review mistakes, and use the focused cheat sheet with progress saved on your device.</p>
           <div class="hero__actions">
-            <button class="btn btn--primary" type="button" data-route="exam">Start exam simulation →</button>
+            <button class="btn btn--primary" type="button" data-route="exam">Start Practice Exam →</button>
             <button class="btn btn--secondary" type="button" data-route="dump">Open PDF question bank</button>
             ${state.activeSession && !state.activeSession.submitted ? '<button class="btn btn--secondary" type="button" data-action="resume-session">Resume session</button>' : ""}
           </div>
@@ -1335,12 +1358,7 @@
         <form id="sessionSetup" data-mode="${mode}">
           <h2>Session setup</h2>
           <div class="setup-grid">
-            <label class="choice-card"><input type="radio" name="scope" value="all" checked><strong>All batches</strong><small>Mixed questions from the 100-question bank</small></label>
-            <label class="choice-card"><input type="radio" name="scope" value="1"><strong>Management & Governance</strong><small>Batch 1 · 25 questions</small></label>
-            <label class="choice-card"><input type="radio" name="scope" value="2"><strong>Ingestion & Architecture</strong><small>Batch 2 · 25 questions</small></label>
-            <label class="choice-card"><input type="radio" name="scope" value="3"><strong>Real-Time Analytics</strong><small>Batch 3 · 25 questions</small></label>
-            <label class="choice-card"><input type="radio" name="scope" value="4"><strong>Monitoring & Optimization</strong><small>Batch 4 · 25 questions</small></label>
-            <label class="choice-card"><input type="radio" name="scope" value="wrong" ${stats().wrong ? "" : "disabled"}><strong>Current errors only</strong><small>${stats().wrong} questions need review</small></label>
+            ${isExam ? `<label class="choice-card"><input type="radio" name="scope" value="all" checked><strong>All three PDF runs</strong><small>${EXAM_QUESTIONS.length} answerable questions from DP-700N1, N2, and N3</small></label>${Object.entries(PDF_SOURCE_LABELS).map(([source,label]) => { const count=EXAM_QUESTIONS.filter(q=>q.sourceFile===source).length; return `<label class="choice-card"><input type="radio" name="scope" value="${label.toLowerCase()}"><strong>${label}</strong><small>${count} answerable questions from this PDF source</small></label>`; }).join("")}` : `<label class="choice-card"><input type="radio" name="scope" value="all" checked><strong>All question practice</strong><small>Mixed questions from the validated bank</small></label><label class="choice-card"><input type="radio" name="scope" value="wrong" ${stats().wrong ? "" : "disabled"}><strong>Current errors only</strong><small>${stats().wrong} questions need review</small></label>`}
           </div>
           ${!isQuick ? `<label><strong>Question count</strong><select class="select-field" name="count" aria-label="Question count">${[10, 25, 40, 50, 100].map(count => `<option value="${count}" ${count === defaultCount ? "selected" : ""}>${count} questions</option>`).join("")}</select></label>` : `<input type="hidden" name="count" value="10">`}
           <div class="setup-note"><strong>${isExam ? "Simulation rules" : "How it works"}:</strong> ${isExam ? "45 minutes, shuffled questions and options, a 70% practice target, and free navigation with the question palette." : "Options are reshuffled each session. Use 1–4 to answer, B to bookmark, and arrow keys to navigate."}</div>
@@ -1350,11 +1368,12 @@
   }
 
   function startSession(mode, count, scope = "all", explicitIds = null) {
-    let pool = explicitIds ? explicitIds.map(getQuestion).filter(Boolean) : QUESTIONS;
+    const sourceExam = mode === "exam";
+    let pool = explicitIds ? explicitIds.map(id => sourceExam ? EXAM_QUESTIONS.find(q => q.n === Number(id)) : getQuestion(id)).filter(Boolean) : (sourceExam ? EXAM_QUESTIONS : QUESTIONS);
     if (!explicitIds) {
-      if (["1", "2", "3", "4"].includes(String(scope))) pool = pool.filter(q => q.batch === Number(scope));
-      if (scope === "wrong") pool = pool.filter(q => state.answers[q.n] && !state.answers[q.n].correct);
-      if (scope === "bookmarks") pool = pool.filter(q => state.bookmarks.includes(q.n));
+      if (sourceExam && ["dp-700n1", "dp-700n2", "dp-700n3"].includes(String(scope))) pool = pool.filter(q => PDF_SOURCE_LABELS[q.sourceFile].toLowerCase() === String(scope));
+      if (!sourceExam && scope === "wrong") pool = pool.filter(q => state.answers[q.n] && !state.answers[q.n].correct);
+      if (!sourceExam && scope === "bookmarks") pool = pool.filter(q => state.bookmarks.includes(q.n));
     }
     const selected = shuffle(pool).slice(0, Math.min(Number(count), pool.length));
     if (!selected.length) {
@@ -1384,7 +1403,7 @@
     if (!session) return renderPracticeSetup("practice");
     if (session.submitted) return renderResult();
     session.index = Math.max(0, Math.min(session.index, session.ids.length - 1));
-    const question = getQuestion(session.ids[session.index]);
+    const question = getSessionQuestion(session.ids[session.index]);
     const response = session.answers[question.n];
     const reveal = session.mode !== "exam" && Boolean(response);
     const order = session.optionOrders[question.n] || question.options.map((_, index) => index);
@@ -1399,7 +1418,7 @@
           <div class="quiz-top__meta">${session.durationSec ? `<span class="timer ${remaining < 300 ? "warning" : ""}" id="timer" aria-label="Time remaining">${formatDuration(remaining)}</span>` : ""}<button class="btn btn--secondary btn--small bookmark-button ${state.bookmarks.includes(question.n) ? "active" : ""}" type="button" data-action="bookmark" data-id="${question.n}">${state.bookmarks.includes(question.n) ? "★ Bookmarked" : "☆ Bookmark"}</button></div>
         </div>
         <div class="quiz-progress" aria-hidden="true"><span style="width:${percent(session.index + 1, session.ids.length)}%"></span></div>
-        <div class="question-tags"><span class="tag">Batch ${question.batch}</span><span class="tag">${escapeHtml(question.area)}</span><span class="tag">Original question #${question.n}</span></div>
+        <div class="question-tags"><span class="tag">${escapeHtml(PDF_SOURCE_LABELS[question.sourceFile] || `Batch ${question.batch}`)}</span><span class="tag">${escapeHtml(question.area)}</span><span class="tag">Original question #${question.n}</span></div>
         <p class="question-title">${escapeHtml(question.title)}</p>
         <h1 class="question-text">${escapeHtml(question.question)}</h1>
         <div class="options-list" role="group" aria-label="Answer choices">
@@ -1448,7 +1467,7 @@
   function selectOption(originalIndex) {
     const session = state.activeSession;
     if (!session || session.submitted) return;
-    const question = getQuestion(session.ids[session.index]);
+    const question = getSessionQuestion(session.ids[session.index]);
     if (session.mode !== "exam" && session.answers[question.n]) return;
     const correct = Number(originalIndex) === question.correctIndex;
     session.answers[question.n] = { selectedIndex: Number(originalIndex), correct, at: new Date().toISOString() };
@@ -1525,12 +1544,12 @@
         <p class="page-subtitle" style="margin-inline:auto">This practice score does not predict an official exam result. Use the breakdown to choose your next review.</p>
         <div class="score-circle" style="--score-angle:${session.score * 3.6}deg;--score-color:${passed ? "var(--green)" : "var(--amber)"}"><div><strong>${session.score}%</strong><span>${passed ? "At or above 70%" : "Below 70%"}</span></div></div>
         <div class="result-grid"><div><strong>${correct}</strong><span>Correct answers</span></div><div><strong>${wrongIds.length}</strong><span>Incorrect answers</span></div><div><strong>${unansweredIds.length}</strong><span>Unanswered</span></div></div>
-        <div class="hero__actions" style="justify-content:center"><button class="btn btn--primary" type="button" data-route="review">Review errors</button><button class="btn btn--secondary" type="button" data-action="restart-session">New session</button><button class="btn btn--secondary" type="button" data-route="analytics">Performance Analytics</button></div>
+        <div class="hero__actions" style="justify-content:center"><button class="btn btn--primary" type="button" data-route="review">Review errors</button><button class="btn btn--secondary" type="button" data-action="restart-session">New session</button><button class="btn btn--secondary" type="button" data-route="analytics">Performance Statistics</button></div>
       </section>
       <div class="section-title"><div><h2>Session review</h2><p>${answered} answers of ${session.ids.length}</p></div></div>
       <div class="review-list">
         ${session.ids.map((id, index) => {
-          const q = getQuestion(id);
+          const q = getSessionQuestion(id);
           const response = session.answers[id];
           const status = !response ? "—" : response.correct ? "✓" : "✕";
           return `<details class="review-item"><summary>${status} Question ${index + 1}: ${escapeHtml(q.title)}</summary><p>${escapeHtml(q.question)}</p><p><strong>Your answer:</strong> ${response ? escapeHtml(q.options[response.selectedIndex]) : "Not answered"}</p><p><strong>Validated answer:</strong> ${escapeHtml(q.options[q.correctIndex])}</p><p>${escapeHtml(q.explanation)}</p><div class="source-links">${sourceLinks(q.refs)}</div></details>`;
@@ -1541,20 +1560,19 @@
 
   function renderAnalytics() {
     const s = stats();
-    const batchNames = ["Management & Governance", "Ingestion & Architecture", "Real-Time Analytics", "Monitoring & Optimization"];
-    const bars = [1, 2, 3, 4].map((batch, index) => {
-      const ids = QUESTIONS.filter(q => q.batch === batch).map(q => q.n);
+    const sourceBars = Object.entries(PDF_SOURCE_LABELS).map(([source, label]) => {
+      const ids = DUMP_QUESTIONS.filter(q => q.sourceFile === source).map(q => q.n);
       const entries = ids.map(id => state.answers[id]).filter(Boolean);
       const correct = entries.filter(answer => answer.correct).length;
       const accuracy = percent(correct, entries.length);
-      return `<div class="bar-row"><div class="bar-row__top"><span>${batchNames[index]}</span><strong>${accuracy}% <small>(${entries.length}/${ids.length})</small></strong></div><div class="meter"><span style="width:${accuracy}%"></span></div></div>`;
+      return `<div class="bar-row"><div class="bar-row__top"><span>${label}</span><strong>${accuracy}% <small>(${entries.length}/${ids.length})</small></strong></div><div class="meter"><span style="width:${accuracy}%"></span></div></div>`;
     }).join("");
     const frequentAreas = Object.entries(Object.values(state.answers).reduce((acc, answer) => acc, {}));
-    const wrongAreas = Object.entries(QUESTIONS.filter(q => state.answers[q.n] && !state.answers[q.n].correct).reduce((acc, q) => ({ ...acc, [q.area]: (acc[q.area] || 0) + 1 }), {})).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const wrongAreas = Object.entries(DUMP_QUESTIONS.filter(q => state.answers[q.n] && !state.answers[q.n].correct).reduce((acc, q) => ({ ...acc, [q.area]: (acc[q.area] || 0) + 1 }), {})).sort((a, b) => b[1] - a[1]).slice(0, 6);
     void frequentAreas;
 
     app.innerHTML = `
-      ${pageHead("PERFORMANCE", "Performance Analytics", "Measure coverage and accuracy by batch, then target weak areas instead of practicing blindly.")}
+      ${pageHead("PERFORMANCE", "Performance Statistics", "Track accuracy, completion, timing, weak areas, and repeated mistakes across your Practice Exam and DUMP sessions.")}
       <section class="stats-grid">
         ${statCard("Attempted", s.attempted, `${s.completion}% of the bank`, "▥", "#4f8cff")}
         ${statCard("Correct answers", s.correct, `${s.accuracy}% accuracy`, "✓", "#31d0aa")}
@@ -1562,7 +1580,7 @@
         ${statCard("Sessions", state.sessions.length, `Last activity ${formatDate(state.lastActivity)}`, "◷", "#fbbf24")}
       </section>
       <section class="analytics-grid">
-        <article class="chart-card"><h3>Accuracy by batch</h3><div class="bar-list">${bars}</div></article>
+        <article class="chart-card"><h3>Accuracy by PDF run</h3><div class="bar-list">${sourceBars}</div></article>
         <article class="chart-card"><h3>Top review areas</h3>${wrongAreas.length ? `<div class="activity-list">${wrongAreas.map(([area, count]) => `<div class="activity-item"><span>${escapeHtml(area)}</span><strong>${count}</strong></div>`).join("")}</div>` : '<div class="empty-state"><p>No errors recorded yet.</p></div>'}</article>
       </section>
       <div class="section-title"><div><h2>Recent sessions</h2><p>The latest 30 sessions are stored on this device</p></div></div>

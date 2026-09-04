@@ -460,9 +460,11 @@
     return interaction.optionsOverride || question.options || [];
   }
 
-  function renderDumpAssets(interaction) {
-    if (!interaction.assets?.length) return "";
-    return `<section class="dump-exhibits" aria-label="Question screenshot"><div class="dump-exhibits__title">Question screenshot${interaction.assets.length > 1 ? "s · split for readability" : ""}</div><div class="dump-exhibit-grid">${interaction.assets.map((src, index) => `<button class="dump-exhibit-button" type="button" data-action="open-dump-image" data-src="${escapeHtml(src)}" aria-label="Open question screenshot ${index + 1}"><span class="dump-exhibit-label">${interaction.assets.length > 1 ? `Panel ${String.fromCharCode(65 + index)}` : "Source page"}</span><img src="${escapeHtml(src)}" alt="Question screenshot ${index + 1}" loading="lazy"></button>`).join("")}</div></section>`;
+  function renderDumpAssets(question, interaction) {
+    const src = question.questionScreenshot;
+    if (!src) return "";
+    const exhibits = (interaction.assets || []).map((asset, index) => `<button class="dump-exhibit-button" type="button" data-action="open-dump-image" data-src="${escapeHtml(asset)}" aria-label="Open exhibit ${index + 1}"><span class="dump-exhibit-label">Exhibit ${String.fromCharCode(65 + index)}</span><img src="${escapeHtml(asset)}" alt="Exhibit ${String.fromCharCode(65 + index)} for question ${question.sourceQuestion || question.n}" loading="lazy"></button>`).join("");
+    return `<section class="dump-exhibits" aria-label="Complete question screenshot"><div class="dump-exhibits__title">Complete source screenshot${question.sourcePages?.length > 1 ? ` · ${question.sourcePages.length} PDF pages joined` : ""}</div><div class="dump-exhibit-grid"><button class="dump-exhibit-button" type="button" data-action="open-dump-image" data-src="${escapeHtml(src)}" aria-label="Open complete question screenshot"><span class="dump-exhibit-label">${question.sourceFile} · page${question.sourcePages?.length > 1 ? "s" : ""} ${escapeHtml((question.sourcePages || [question.sourcePage]).join(", "))}</span><img src="${escapeHtml(src)}" alt="Complete screenshot for question ${question.sourceQuestion || question.n}" loading="lazy"></button></div>${exhibits ? `<div class="dump-exhibits__title">Referenced exhibits</div><div class="dump-exhibit-grid">${exhibits}</div>` : ""}</section>`;
   }
 
   function renderDumpFeedback(question, answer, interaction) {
@@ -526,7 +528,7 @@
       ? `<button class="btn btn--secondary btn--small" type="button" data-action="dump-retry" data-id="${question.n}">Try again</button>`
       : `<button class="btn btn--primary btn--small" type="button" data-action="dump-check" data-id="${question.n}" ${complete ? "" : "disabled"}>${interaction.unscored ? "Reveal corrected validation" : "Check answer"}</button>`;
 
-    return `<section class="dump-interaction" aria-label="Interactive answer area"><div class="dump-interaction__head"><span class="tag">${dumpTypeLabel(interaction)}</span>${interaction.unscored ? '<span class="status-badge invalid">UNSCORED · INVALID SOURCE OPTIONS</span>' : ""}</div>${renderDumpAssets(interaction)}${controls}<div class="dump-interaction__actions">${actions}</div>${renderDumpFeedback(question, answer, interaction)}</section>`;
+    return `<section class="dump-interaction" aria-label="Interactive answer area"><div class="dump-interaction__head"><span class="tag">${dumpTypeLabel(interaction)}</span>${interaction.unscored ? '<span class="status-badge invalid">UNSCORED · INVALID SOURCE OPTIONS</span>' : ""}</div>${renderDumpAssets(question, interaction)}${controls}<div class="dump-interaction__actions">${actions}</div>${renderDumpFeedback(question, answer, interaction)}</section>`;
   }
 
   function stats() {

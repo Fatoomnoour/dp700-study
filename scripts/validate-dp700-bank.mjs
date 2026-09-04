@@ -47,6 +47,9 @@ const ids = new Set();
 const seenSourceQuestions = new Map();
 let previousKey = "";
 const reviewRows = [];
+const boundariesPath = path.join(root, "build", "dp700-rebuild", "boundaries.json");
+const boundaries = fs.existsSync(boundariesPath) ? JSON.parse(fs.readFileSync(boundariesPath, "utf8")) : [];
+const boundaryMap = new Map(boundaries.map(row => [`${row.sourceFile}:${row.sourceQuestion}`, row]));
 for (const q of questions) {
   const key = `${fileOrder.indexOf(q.sourceFile)}:${String(q.sourcePage).padStart(4, "0")}:${String(q.sourceQuestion).padStart(4, "0")}`;
   if (ids.has(q.n)) fail(`Duplicate internal question id ${q.n}`);
@@ -58,6 +61,12 @@ for (const q of questions) {
   seenSourceQuestions.set(sourceKey, q.n);
   if (!q.question?.trim()) fail(`${q.n}: missing question text`);
   if (!Array.isArray(q.options) || q.options.length < 1) fail(`${q.n}: missing answer choices`);
+  const boundary = boundaryMap.get(`${q.sourceFile}:${q.sourceQuestion}`);
+  if (!boundary) fail(`${q.n}: missing rebuilt PDF boundary`);
+  if (!Array.isArray(q.sourcePages) || q.sourcePages.length < 1) fail(`${q.n}: missing sourcePages array`);
+  if (boundary && JSON.stringify(q.sourcePages) !== JSON.stringify(boundary.sourcePages)) fail(`${q.n}: sourcePages do not match rebuilt boundary`);
+  if (!q.questionScreenshot || !fs.existsSync(path.join(root, q.questionScreenshot))) fail(`${q.n}: missing complete question screenshot`);
+  for (const part of q.screenshotParts || []) if (!fs.existsSync(path.join(root, part))) fail(`${q.n}: missing screenshot part ${part}`);
   const interaction = interactions[String(q.n)];
   if (!interaction) { fail(`${q.n}: missing interaction record`); continue; }
   const assets = interaction.assets || [];
